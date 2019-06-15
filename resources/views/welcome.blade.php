@@ -56,23 +56,49 @@
             }
 
             .level_1{
-                color: #0035ff;
+                background-color: rgba(0,53,255,0.5);
+
             }
             .level_2{
-                color: #50bb4a;                
+                background-color: rgba(80,187,74,0.5);                
             }
             .level_3{
-                color: #c3b600;                
+                background-color: rgba(195,182,0,0.5);                
             }
             .level_4{
-                color: #ff8707;                
+                background-color: rgba(255,135,7,0.5);                
             }
             .level_5{
-                color: #ff0000;                
+                background-color: rgba(255,0,0,0.5);                
+            }
+            .level_bar{
+                width: 49%; height: 5px; float: left;
             }
 
             .m-b-md {
                 margin-bottom: 30px;
+            }
+            .list-group-horizontal .list-group-item
+            {
+                display: inline-block;
+            }
+            .list-group-horizontal .list-group-item
+            {
+                margin-bottom: 0;
+                margin-left:-4px;
+                margin-right: 0;
+                border-right-width: 0;
+            }
+            .list-group-horizontal .list-group-item:first-child
+            {
+                border-top-right-radius:0;
+                border-bottom-left-radius:4px;
+            }
+            .list-group-horizontal .list-group-item:last-child
+            {
+                border-top-right-radius:4px;
+                border-bottom-left-radius:0;
+                border-right-width: 1px;
             }
         </style>
     </head>
@@ -92,27 +118,41 @@
                 </div>
             @endif
 
+            <div style="width: 5%; top: 81px; position: fixed; left: 11%;">
+                <ul class="list-group">
+                  @foreach($exchanges as $exchange)
+                  <li class="wipevals list-group-item" val="row_{{ $exchange }}" show="on">{{$exchange}}</li>
+                  @endforeach
+                </ul>
+            </div>
             <div class="content">
                 @if($last_updated)
                 <labe>Last updated: {{$last_updated->date}}</labe>
                 @endif
+                <ul class="list-group list-group-horizontal">
+                  @foreach($exchanges as $exchange)
+                  <li class="wipevals list-group-item" val="col_{{ $exchange }}" show="on">{{$exchange}}</li>
+                  @endforeach
+                </ul>
                 <table class="table table-bordered table-hover table-sm">
                   <thead>
                     <tr>
                       <th scope="col">&nbsp;</th>
                       @foreach($exchanges as $exchange)
-                      <th scope="col">{{$exchange}}</th>
+                      <th scope="col" class="col_{{ $exchange }}" show="on">{{$exchange}}</th>
                       @endforeach
                     </tr>
                   </thead>
                   <tbody>
                     @foreach($rows as $row)
                     <tr>
-                      <th scope="row">{{$row['exchange']}}</th>
+                      <th scope="row" class="row_{{ $row['exchange'] }}" show="on">{{$row['exchange']}}</th>
                       @foreach($row['items'] as $item)
-                      <td style="{{ $row['exchange'] == $item['exchange'] ? "background-color:gray;" : ""}}">
+                      <td class="col_{{ $item['exchange'] }} row_{{ $row['exchange'] }}" style="{{ $row['exchange'] == $item['exchange'] ? "background-color:gray;" : ""}}">
                         @foreach($item['pairs'] as $pair)
-                        <label data-toggle="tooltip" title="{{ $pair['volume_source'] . ' - ' . $pair['volume_target'] }}" style="margin:0;" class="level_{{ $pair['volume_target_level'] }}">{{ $pair['margin'] > 200 ? "**" : "" }} {{$pair['pair']}} - {{$pair['margin']}}% {{ $pair['margin'] > 200 ? "**" : "" }}</label><br/>
+                        <label data-toggle="tooltip" title="{{ $pair['volume_source'] . ' - ' . $pair['volume_target'] }}" style="margin:0;">{{ $pair['margin'] > 200 ? "**" : "" }} {{$pair['pair']}} - {{$pair['margin']}}% {{ $pair['margin'] > 200 ? "**" : "" }}</label><br/>
+                        <div class="level_bar level_{{ $pair['volume_source_level'] }}">&nbsp;</div>
+                        <div class="level_bar level_{{ $pair['volume_target_level'] }}">&nbsp;</div>
                         @endforeach
                       </td>
                       @endforeach
@@ -128,9 +168,20 @@
     <script>
     $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip();   
-      setInterval(function(){
+      /*setInterval(function(){
         location.reload();
-      }, 120000)
+      }, 120000);*/
+      $('body').on('click', '.wipevals', function(){
+        let $this = $(this);
+        if($this.attr('show') == 'on'){
+            $('.' + $this.attr('val')).hide();
+            $this.attr('show','off');
+        }
+        else {
+            $('.' + $this.attr('val')).show();
+            $this.attr('show','on');
+        }
+      });
     });
     </script>
 </html>
