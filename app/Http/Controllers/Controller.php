@@ -12,6 +12,7 @@ use DB;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
     /**
      * Display a listing of the resource.
      *
@@ -53,11 +54,11 @@ class Controller extends BaseController
                     else{
                         $volume_source_level = $this->get_volume_level($max_volume_eth,$arbitrage->volume_source);
                         $volume_target_level = $this->get_volume_level($max_volume_eth,$arbitrage->volume_target);
-                        $volume_level = (int)(($volume_source_level + $volume_target_level) / 2);                        
+                        $volume_level = (int)(($volume_source_level + $volume_target_level) / 2);
                     }
-    				$margin = ($arbitrage->price_target / $arbitrage->price_source) * 100;
-    				array_push($pairs, array('pair' => $arbitrage->pair, 'margin' => number_format($margin, 2), 
-                        'volume_source' => number_format($arbitrage->volume_source,2), 
+    				$margin = (($arbitrage->price_target / $arbitrage->price_source) * 100) - 100;
+    				array_push($pairs, array('pair' => $arbitrage->pair, 'margin' => number_format($margin, 2),
+                        'volume_source' => number_format($arbitrage->volume_source,2),
                         'volume_target' => number_format($arbitrage->volume_target,2),
                         'volume_source_level' => $volume_source_level,
                         'volume_target_level' => $volume_target_level,
@@ -65,7 +66,7 @@ class Controller extends BaseController
 				}
 	    		array_push($items, array('exchange' => $exchange_target, 'pairs' => $pairs));
         	}
-    		
+
         	array_push($rows, array('exchange' => $exchange_source, 'items' => $items));
         }
         return view('welcome',compact('exchanges', 'rows', 'last_updated'));
@@ -80,6 +81,8 @@ class Controller extends BaseController
     }
 
     private function get_volume_level($max, $volume){
+        if($volume == 0)
+            return 0;
         $division = $max / 5;
         for($level = 1; $level <= 5; $level++){
             if($volume < $division * $level)

@@ -14,4 +14,7 @@
 /*Route::get('/', function () {
     return view('welcome');
 });*/
-Route::get('/', 'Controller@index');
+Route::any('/', 'Controller@index');
+Route::get('/get_processes', 'DashboardController@get_processes')->name('dashboard.get_processes');
+Route::get('/get_orders', 'DashboardController@get_orders')->name('dashboard.get_orders');
+Route::get('/get_balances', 'DashboardController@get_balances')->name('dashboard.get_balances');
