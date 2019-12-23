@@ -8,7 +8,8 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" >
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
         <!-- Styles -->
         <style>
@@ -50,7 +51,9 @@
             .title {
                 font-size: 84px;
             }
-
+            .nomargin {
+                margin: 0;
+            }
             .links > a {
                 color: #636b6f;
                 padding: 0 25px;
@@ -120,11 +123,32 @@
                 background-color: gray;
                 color: white;
             }
-            .table-condensed{
+            .font-condensed{
               font-size: 0.75rem;
+            }
+            h7{
+                font-size: 0.7rem;
             }
             #balances > table > tbody > tr > th, #balances > table > tbody > tr > td {
                  vertical-align: middle;
+            }
+            .bd-order-modal-sm .custom-radio{
+                margin: 0 0.5rem 0 0;
+            }
+            #balances{
+                margin: 0 2rem 0 0;
+            }
+            .hide{
+                display: none !important;
+            }
+            .cursor{
+                cursor: pointer;
+            }
+            .circles-text{
+                color: transparent;
+            }
+            .selected{
+                background-color: rgba(50, 115, 220, 0.3);
             }
             @media only screen and (max-device-width : 640px) {
                 .list-group{
@@ -156,108 +180,288 @@
             @endif
 
             <div class="content">
-                @if($last_updated)
-                <label>Last updated: {{ $last_updated->date }}</label>
-                @endif
-                    <div class="row">
-                        <div class="col-lg-1">
-                            &nbsp;
+                <div class="row">
+                    <div class="col-lg-6">
+                        @if($last_updated)
+                        <label class="float-lg-left">Last updated: {{ $last_updated->date }}</label>
+                        @endif
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="row position-absolute hide" id="balances" style="right: 0;">
+
                         </div>
-                        <div class="col">
-                            <ul id="cols-group" class="list-group list-group-horizontal" style="text-align: left;  padding: 0 0 15px 0;">
-                              @foreach($exchanges as $exchange)
-                              <li class="wipevals list-group-item" val="col_{{ $exchange }}" show="on">{{ $exchange }}</li>
-                              @endforeach
-                            </ul>
-                        </div>
-                        <div class="col col-lg-2">
-                            <div class="form-check form-check-inline">
-                                <input type="checkbox" checked="checked" class="form-check-input quote_select" id="quote_select_btc" value="btc" />
-                                <label class="form-check-label" for="quote_select_btc">BTC</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input type="checkbox" checked="checked" class="form-check-input quote_select" id="quote_select_eth" value="eth" />
-                                <label class="form-check-label" for="quote_select_eth">ETH</label>
+                        <div class="row float-lg-right">
+                            <div class="col-md-auto cursor">
+                                <i class="material-icons" id="show-earnings"> attach_money </i>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-auto padding-r0">
-                            <ul id="rows-group" class="list-group"  style="width: 130px; float: left; padding: 0 10px 0 0;">
-                              @foreach($exchanges as $exchange)
-                              <li class="wipevals list-group-item" val="row_{{ $exchange }}" show="on">{{ $exchange }}</li>
-                              @endforeach
-                            </ul>
-                        </div>
-                        <div class="col-md-8 padding-l0">
-                            <table class="table table-bordered table-hover table-sm table-condensed">
-                              <thead>
-                                <tr>
-                                  <th scope="col">&nbsp;</th>
+                </div>
+                <div class="row">
+                    <div class="col-lg-1">
+                        &nbsp;
+                    </div>
+                    <div class="col-lg-11">
+                        <div class="row">
+                            <div class="col-lg-auto">
+                                <ul id="cols-group" class="list-group list-group-horizontal" style="text-align: left;  padding: 0 0 15px 0;">
                                   @foreach($exchanges as $exchange)
-                                  <th scope="col" class="col_{{ $exchange }}" show="on">{{$exchange}}</th>
+                                  <li class="wipevals list-group-item" val="col_{{ $exchange }}" show="on">{{ $exchange }}</li>
                                   @endforeach
-                                </tr>
-                              </thead>
-                              <tbody>
-                                @foreach($rows as $row)
-                                <tr>
-                                  <th scope="row" class="row_{{ $row['exchange'] }}" show="on">{{ $row['exchange'] }}</th>
-                                  @foreach($row['items'] as $item)
-                                  <td class="col_{{ $item['exchange'] }} row_{{ $row['exchange'] }}" style="{{ $row['exchange'] == $item['exchange'] ? "background-color:gray;" : "" }}">
-                                    @foreach($item['pairs'] as $pair)
-                                    <label class="{{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}" data-toggle="tooltip" title="{{ $pair['volume_source'] . ' - ' . $pair['volume_target'] }}" style="margin:0;">{{ str_replace(',','', $pair['margin']) > 200 ? "*" : "" }} {{ $pair['pair'] }} - {{ $pair['margin']}}% {{ str_replace(',','', $pair['margin']) > 200 ? "*" : "" }}</label><br/>
-                                    <div class="level_bar level_{{ $pair['volume_source_level'] }} {{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}">&nbsp;</div>
-                                    <div class="level_bar level_{{ $pair['volume_target_level'] }} {{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}">&nbsp;</div>
-                                    @endforeach
-                                  </td>
-                                  @endforeach
-                                </tr>
-                                @endforeach
-                              </tbody>
-                            </table>
-                        </div>
-                        <div class="col-lg-3">
-                            <h3>Earnings</h3>
-                            <div class="row" id="balances">
-
+                                </ul>
                             </div>
-                            <h3>Processes &amp; Orders</h3>
-                            <select class="form-control" id="order_type" onchange="select_order_type(this)">
-                                <option value="-1">All</option>
-                                <option value="1" class="state-1">Open</option>
-                                <option value="2" class="state-2">Closed</option>
-                            </select>
-                            <div class="row" id="processes">
-
-                            </div>
-                            <div class="row" id="orders">
+                            <div class="col-lg-2" style="text-align: left;">
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" checked="checked" class="form-check-input quote_select" id="quote_select_btc" value="btc" />
+                                    <label class="form-check-label" for="quote_select_btc">BTC</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" checked="checked" class="form-check-input quote_select" id="quote_select_eth" value="eth" />
+                                    <label class="form-check-label" for="quote_select_eth">ETH</label>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-auto padding-r0">
+                        <ul id="rows-group" class="list-group"  style="width: 130px; float: left; padding: 0 10px 0 0;">
+                          @foreach($exchanges as $exchange)
+                          <li class="wipevals list-group-item" val="row_{{ $exchange }}" show="on">{{ $exchange }}</li>
+                          @endforeach
+                        </ul>
+                    </div>
+                    <div class="col-md-11 padding-l0">
+                        <table class="table table-bordered table-hover table-sm font-condensed">
+                          <thead>
+                            <tr>
+                              <th scope="col">&nbsp;</th>
+                              @foreach($exchanges as $exchange)
+                              <th scope="col" class="col_{{ $exchange }}" show="on">{{$exchange}}</th>
+                              @endforeach
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @foreach($rows as $row)
+                            <tr>
+                              <th scope="row" class="row_{{ $row['exchange'] }}" show="on">{{ $row['exchange'] }}</th>
+                              @foreach($row['items'] as $item)
+                              <td class="col_{{ $item['exchange'] }} row_{{ $row['exchange'] }}" style="{{ $row['exchange'] == $item['exchange'] ? "background-color:gray;" : "" }}">
+                                @foreach($item['pairs'] as $pair)
+                                <label class="cursor" data-toggle="modal" data-target=".bd-order-modal-sm" class="{{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}" data-toggle="tooltip" title="{{ $pair['volume_source'] . ' - ' . $pair['volume_target'] }}" data-pair="{{ $pair['pair'] }}" data-exchange-source="{{ $row['exchange'] }}" data-exchange-target="{{ $item['exchange'] }}" data-source-volume="{{ $pair['volume_source'] }}" data-target-volume="{{ $pair['volume_target'] }}" style="margin:0;">{{ str_replace(',','', $pair['margin']) > 200 ? "*" : "" }} {{ $pair['pair'] }} - {{ $pair['margin']}}% {{ str_replace(',','', $pair['margin']) > 200 ? "*" : "" }}</label><br/>
+                                <!--div class="cursor level_bar level_{{ $pair['volume_source_level'] }} {{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}">{{ $pair['date'] }}</div>
+                                <div class="cursor level_bar level_{{ $pair['volume_target_level'] }} {{ strpos($pair['pair'],'ETH') ? 'eth' : (strpos($pair['pair'],'BTC') ? 'btc' : '') }}">&nbsp;</div-->
+                                <div style="background-color: #d3d3d3; color: black;">{{ $pair['date'] }}</div>
+                                @endforeach
+                              </td>
+                              @endforeach
+                            </tr>
+                            @endforeach
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row nomargin justify-content-center align-items-center hide">
+                    <div class="col-lg-auto">
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <h3>Processes &amp; Orders</h3>
+                            </div>
+                            <div class="col-lg-2">
+                                <select class="form-control" id="order_type" onchange="select_order_type(this)">
+                                    <option value="-1">All</option>
+                                    <option value="1">Open</option>
+                                    <option value="2">Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="processes">
+
+                        </div>
+                    </div>
+                    <div class="col-md-auto padding-r0">
+                        &nbsp;
+                    </div>
+                    <div class="col-lg-3">
+                        <h3>&nbsp;</h3>
+                        <div class="row" id="orders">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade bd-order-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="order_form">
+                        <div class="modal-header">
+                            <h5 class="modal-title font-weight-bold content">Create an order</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                          <div class="row">
+                              <div class="col" style="text-align: center;">
+                                You are about to create a <b>pre-order</b> to process and transfer <h5 id="modal-pair-container" class="font-weight-bold"></h5>
+                                <div class="row">
+                                  <div class="col-8 col-sm-3 font-weight-bold">
+                                    From: <h5 id="modal-exchange-source-container"></h5>
+                                    <h7 id="modal-volume-source-container"></h7>
+                                  </div>
+                                  <div class="col-8 col-sm-6 my-auto">
+                                    <div class="row" style="text-align: center;">
+                                        Available
+                                        <label style="padding: 0 0 0 10px;" id="modal-available-container" data-balance=""></label>
+                                    </div>
+                                    <div class="row font-condensed" id="balance-portion-container">
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                          <input class="custom-control-input" type="radio" name="percent-radios" id="percent-25" value="0.25">
+                                          <label class="custom-control-label" for="percent-25">
+                                            25%
+                                          </label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                          <input class="custom-control-input" type="radio" name="percent-radios" id="percent-50" value="0.50">
+                                          <label class="custom-control-label" for="percent-50">
+                                            50%
+                                          </label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                          <input class="custom-control-input" type="radio" name="percent-radios" id="percent-75" value="0.75">
+                                          <label class="custom-control-label" for="percent-75">
+                                            75%
+                                          </label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                          <input class="custom-control-input" type="radio" name="percent-radios" id="percent-100" value="1">
+                                          <label class="custom-control-label" for="percent-100">
+                                            100%
+                                          </label>
+                                        </div>
+                                    </div>
+                                    <div class="row my-auto">
+                                          <div class="form-group">
+                                            <input type="number" class="form-control" id="qty" min="0" max="" placeholder="Quantity" required />
+                                          </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-4 col-sm-3 font-weight-bold">
+                                    To: <h5 id="modal-exchange-target-container"></h5>
+                                    <h7 id="modal-volume-target-container"></h7>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="order_submit_btn">Start process</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </body>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+    <script src="js/circles.min.js" type="text/javascript"></script>
     <script>
     $(document).ready(function(){
       setInterval(function(){
-        location.reload();
+        if(!$('.bd-order-modal-sm').hasClass('show'))
+            location.reload();
       }, 120000);
+      $('body').on('click','#show-earnings', function(){
+        $balances = $('#balances');
+        if($balances.hasClass('hide'))
+            $balances.removeClass('hide');
+        else
+            $balances.addClass('hide');
+      });
+      $('body').on('click', '#convert_currencies', function(){
+          $this = $(this);
+          $.get('{{ route("dashboard.convert_currency") }}', { _token: '{{ csrf_token() }}' }, function(data){
+            data = $.parseJSON(data);
+            if($this.attr('display-currency') == 'CRYPTO'){
+                let postfix = ' <h8>USD</h8>';
+                $('#open_btc_container').html('$' + (data.btc * $('#open_btc').val()).toFixed(2) + postfix);
+                $('#close_btc_container').html('$' + (data.btc * $('#close_btc').val()).toFixed(2) + postfix);
+                $('#open_eth_container').html('$' + (data.eth * $('#open_eth').val()).toFixed(2) + postfix);
+                $('#close_eth_container').html('$' + (data.eth * $('#close_eth').val()).toFixed(2) + postfix);
+                $this.attr('display-currency','USD');
+            }
+            else{
+              $.get('{{ route("dashboard.get_balances") }}', { _token: '{{ csrf_token() }}' }, function(data){
+                $('#balances').html(data);
+              });
+              $this.attr('display-currency','CRYPTO');
+            }
+          });
+      });
       $.get('{{ route("dashboard.get_balances") }}', { _token: '{{ csrf_token() }}' }, function(data){
         $('#balances').html(data);
       });
       $.get('{{ route("dashboard.get_processes") }}', { _token: '{{ csrf_token() }}', type_id: '-1' }, function(data){
         $('#processes').html(data);
+        $('.circle').each(function(index,obj){
+            $obj = $(obj);
+            Circles.create({
+                id:           $obj.attr('id'),
+                value:        $obj.attr('data-progress'),
+                radius:       10,
+                width:        10,
+                duration:     100,
+                colors:       ['#e6e6e6', '#29bb51']
+            });
+        });
       });
       $('body').on('click','#processes-container tr',function(){
-        $.get('{{ route("dashboard.get_orders") }}', { _token: '{{ csrf_token() }}', process_id: $(this).attr('data-id'),
-            symbol: $(this).attr('data-symbol'), source: $(this).attr('data-source'), target: $(this).attr('data-target') },
+        $('#orders').html('');
+        $('#processes tr').removeClass('selected');
+        $this = $(this);
+        $this.addClass('selected');
+        $.get('{{ route("dashboard.get_orders") }}', { _token: '{{ csrf_token() }}', process_id: $this.attr('data-id'),
+            symbol: $this.attr('data-symbol'), source: $this.attr('data-source'), target: $this.attr('data-target') },
             function(data){
                 $('#orders').html(data);
         });
+      });
+
+      $('body').on('click', '.eth,.btc', function(){
+        let $this = $(this);
+        $('#modal-pair-container').html($this.attr('data-pair'));
+        $('#modal-exchange-source-container').html($this.attr('data-exchange-source'));
+        $('#modal-exchange-target-container').html($this.attr('data-exchange-target'));
+        $('#modal-volume-source-container').html('Volume: ' + $this.attr('data-source-volume'));
+        $('#modal-volume-target-container').html('Volume: ' + $this.attr('data-target-volume'));
+        $('#modal-available-container').html('');
+        $.get('{{ route("dashboard.get_user_balance") }}', { _token: '{{ csrf_token() }}', user_id: 1 }, function(data){
+            data = $.parseJSON(data);
+
+            if($this.attr('data-pair').indexOf('ETH') > -1){
+                $('#qty').attr('max', data.balance_eth);
+                $('#modal-available-container').attr('data-balance', data.balance_eth).html(data.balance_eth + ' ETH');
+            }
+            else{
+                $('#qty').attr('max', data.balance_btc);
+                $('#modal-available-container').attr('data-balance', data.balance_btc).html(data.balance_btc + ' BTC');
+            }
+        });
+      });
+
+      var form = $( "#order_form" );
+      form.validate();
+      $( "#order_submit_btn" ).click(function() {
+            console.log("Valid: " + form.valid() );
+      });
+
+      $('body').on('click', '#balance-portion-container input', function(){
+        $('#qty').val($('#modal-available-container').attr('data-balance') * $(this).val());
       });
 
       $('[data-toggle="tooltip"]').tooltip();
@@ -361,9 +565,21 @@
       }
     });
     function select_order_type(obj){
+        $obj = $(obj);
         $('#orders').html('');
-        $.get('{{ route("dashboard.get_processes") }}', { _token: '{{ csrf_token() }}', type_id: $(obj).val() }, function(data){
+        $.get('{{ route("dashboard.get_processes") }}', { _token: '{{ csrf_token() }}', type_id: $obj.val() }, function(data){
             $('#processes').html(data);
+            $('.circle').each(function(index,circle){
+                $circle = $(circle);
+                Circles.create({
+                    id:           $circle.attr('id'),
+                    value:        $circle.attr('data-progress'),
+                    radius:       10,
+                    width:        10,
+                    duration:     100,
+                    colors:       ['#e6e6e6', '#29bb51']
+                });
+            });
         });
     }
     </script>

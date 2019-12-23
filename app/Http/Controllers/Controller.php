@@ -62,7 +62,8 @@ class Controller extends BaseController
                         'volume_target' => number_format($arbitrage->volume_target,2),
                         'volume_source_level' => $volume_source_level,
                         'volume_target_level' => $volume_target_level,
-                        'volume_level_global' => $volume_level));
+                        'volume_level_global' => $volume_level,
+                        'date' => $arbitrage->date_updated));
 				}
 	    		array_push($items, array('exchange' => $exchange_target, 'pairs' => $pairs));
         	}
