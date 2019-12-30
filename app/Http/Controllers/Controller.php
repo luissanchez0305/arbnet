@@ -21,10 +21,15 @@ class Controller extends BaseController
     public function index()
     {
         //
-        $max_volume_source_btc = DB::table('arbitrage')->select('volume_source')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'BTC'")->orderBy('volume_source','desc')->first()->volume_source;
-        $max_volume_target_btc = DB::table('arbitrage')->select('volume_target')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'BTC'")->orderBy('volume_target','desc')->first()->volume_target;
-        $max_volume_source_eth = DB::table('arbitrage')->select('volume_source')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'ETH'")->orderBy('volume_source','desc')->first()->volume_source;
-        $max_volume_target_eth = DB::table('arbitrage')->select('volume_target')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'ETH'")->orderBy('volume_target','desc')->first()->volume_target;
+        $source_btc = DB::table('arbitrage')->select('volume_source')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'BTC'")->orderBy('volume_source','desc')->first();
+        $target_btc = DB::table('arbitrage')->select('volume_target')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'BTC'")->orderBy('volume_target','desc')->first();
+        $source_eth = DB::table('arbitrage')->select('volume_source')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'ETH'")->orderBy('volume_source','desc')->first();
+        $target_eth = DB::table('arbitrage')->select('volume_target')->whereRaw("SUBSTRING(pair,LENGTH(pair)-2) = 'ETH'")->orderBy('volume_target','desc')->first();
+
+        $max_volume_source_btc = isset($source_btc) ? $source_btc->volume_source : 0;
+        $max_volume_target_btc = isset($target_btc) ? $target_btc->volume_target : 0;
+        $max_volume_source_eth = isset($source_eth) ? $source_eth->volume_source : 0;
+        $max_volume_target_eth = isset($target_eth) ? $target_eth->volume_target : 0;
         $max_volume_btc = $max_volume_source_btc > $max_volume_target_btc ? $max_volume_source_btc : $max_volume_target_btc;
         $max_volume_eth = $max_volume_source_eth > $max_volume_target_eth ? $max_volume_source_eth : $max_volume_target_eth;
         $last_updated = DB::table('arbitrage')->select('date_updated as date')->orderBy('date_updated','desc')->first();

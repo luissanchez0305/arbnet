@@ -8,5 +8,5 @@ class Arbitrage extends Model
      *
      * @var string
      */
-    protected $table = 'arbitrage';
+    protected $table = 'arbitrage2';
 }
